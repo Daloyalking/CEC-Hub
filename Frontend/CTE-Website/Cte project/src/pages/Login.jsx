@@ -1,13 +1,25 @@
 import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-import { DeptContext } from "../context/DeptContext";
 import axios from "axios";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
+// Hardcoded Exco posts
+const hardcodedExcos = [
+  "President",
+  "Vice President",
+  "General Secretary",
+  "Assistant General Secretary",
+  "Financial Secretary",
+  "Treasurer",
+  "Public Relations Officer (PRO)",
+  "Assistant PRO",
+  "Welfare Secretary",
+  "Sports Secretary",
+];
+
 const Login = () => {
-  const { excos } = useContext(DeptContext);
   const [isSignUp, setIsSignUp] = useState(false);
   const [role, setRole] = useState("student");
   const [position, setPosition] = useState("other");
@@ -23,8 +35,11 @@ const Login = () => {
   });
   const [preview, setPreview] = useState(null);
   const [showPassword, setShowPassword] = useState(false);
+  const [localExcos, setLocalExcos] = useState(hardcodedExcos);
+  const [addingNewExco, setAddingNewExco] = useState(false);
+  const [newExco, setNewExco] = useState("");
 
-  const { user, login, loading, setToken } = useContext(AuthContext);
+  const { user, login, loading } = useContext(AuthContext);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,6 +58,27 @@ const Login = () => {
       setFormData({ ...formData, picture: file });
       setPreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleExcoSelect = (e) => {
+    const value = e.target.value;
+    if (value === "add_new") {
+      setAddingNewExco(true);
+      setPosition("");
+    } else {
+      setPosition(value);
+      setAddingNewExco(false);
+    }
+  };
+
+  const handleNewExcoSubmit = () => {
+    if (newExco.trim() === "") return;
+    if (!localExcos.includes(newExco)) {
+      setLocalExcos((prev) => [...prev, newExco]);
+    }
+    setPosition(newExco);
+    setNewExco("");
+    setAddingNewExco(false);
   };
 
   const handleSubmit = async (e) => {
@@ -73,20 +109,12 @@ const Login = () => {
           { headers: { "Content-Type": "multipart/form-data" } }
         );
 
-        // Save token and user
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-
-        login(res.data.user);
-        setToken(res.data.token);
-
+        login(res.data.user, res.data.token);
         toast.success("Account created successfully!", { autoClose: 2000 });
         navigate("/");
       } catch (err) {
         console.error(err);
-        toast.error(err.response?.data?.message || "Signup failed", {
-          autoClose: 2500,
-        });
+        toast.error(err.response?.data?.message || "Signup failed", { autoClose: 2500 });
       }
     } else {
       try {
@@ -95,48 +123,46 @@ const Login = () => {
           password: formData.password,
         });
 
-        // Save token and user
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-
-        login(res.data.user,res.data.token);
-        setToken(res.data.token);
-
+        login(res.data.user, res.data.token);
         toast.success("Login successful!", { autoClose: 2000 });
         navigate("/");
       } catch (err) {
         console.error(err);
         toast.error(
-          err.response?.data?.message ||
-            "Incorrect login details. Please try again.",
+          err.response?.data?.message || "Incorrect login details. Please try again.",
           { autoClose: 2500 }
         );
       }
     }
   };
 
-  const handleForgotPassword = () => {
-    if (!formData.identifier) {
-      return toast.error("Please enter your email/phone/matric first.", {
-        autoClose: 2500,
-      });
-    }
-    toast.info(`Password reset link has been sent to ${formData.identifier}`, {
-      autoClose: 3000,
+  const handleForgotPassword = async () => {
+  if (!formData.identifier) {
+    return toast.error("Please enter your email/phone/matric first.", { autoClose: 2500 });
+  }
+
+  try {
+    await axios.post("http://localhost:4000/api/user/password-reset-request", {
+      identifier: formData.identifier,
     });
-  };
+    toast.success("Password reset link sent to your email", { autoClose: 3000 });
+  } catch (err) {
+    console.error(err);
+    toast.error(err.response?.data?.message || "Failed to send reset link");
+  }
+};
+
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-purple-100 to-purple-300">
       <ToastContainer position="top-right" />
-
       <div className="w-full max-w-md p-8 bg-white rounded-2xl shadow-xl">
         <h2 className="text-3xl font-bold text-center mb-6 text-purple-700">
           {isSignUp ? "Create Account" : "Welcome Back"}
         </h2>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp ? (
+          {isSignUp && (
             <>
               {/* Role Selection */}
               <div className="flex justify-center gap-4 mb-4">
@@ -195,18 +221,38 @@ const Login = () => {
                   <label className="block mb-2 font-medium text-gray-700">
                     Exco Position (optional)
                   </label>
-                  <select
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
-                  >
-                    <option value="other">None</option>
-                    {excos.map((exco, index) => (
-                      <option key={index} value={exco.post.toLowerCase()}>
-                        {exco.post}
-                      </option>
-                    ))}
-                  </select>
+                  {!addingNewExco ? (
+                    <select
+                      value={position}
+                      onChange={handleExcoSelect}
+                      className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 mb-2"
+                    >
+                      <option value="other">None</option>
+                      {localExcos.map((post, idx) => (
+                        <option key={idx} value={post}>
+                          {post}
+                        </option>
+                      ))}
+                      <option value="add_new">Add New Post</option>
+                    </select>
+                  ) : (
+                    <div className="flex gap-2 mb-2">
+                      <input
+                        type="text"
+                        value={newExco}
+                        onChange={(e) => setNewExco(e.target.value)}
+                        placeholder="Enter new post"
+                        className="w-full p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
+                      />
+                      <button
+                        type="button"
+                        onClick={handleNewExcoSubmit}
+                        className="bg-purple-600 text-white px-4 rounded-lg"
+                      >
+                        Add
+                      </button>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -266,7 +312,6 @@ const Login = () => {
                 </>
               )}
 
-              {/* Password */}
               <div className="relative">
                 <input
                   type={showPassword ? "text" : "password"}
@@ -311,9 +356,11 @@ const Login = () => {
                 )}
               </div>
             </>
-          ) : (
+          )}
+
+          {/* Login Section */}
+          {!isSignUp && (
             <>
-              {/* Login Fields */}
               <input
                 type="text"
                 name="identifier"
@@ -344,7 +391,6 @@ const Login = () => {
                 </button>
               </div>
 
-              {/* Forgot Password */}
               <p
                 onClick={handleForgotPassword}
                 className="text-sm text-purple-600 text-right cursor-pointer hover:underline"

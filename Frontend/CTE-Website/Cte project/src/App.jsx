@@ -23,6 +23,7 @@ import MaterialPage from './pages/MaterialPage';
 import PostGalleryPage from './pages/PostGalleryPage';
 import PostLecturerPage from './pages/PostLecturerPage';
 import ExcoPage from './pages/ExcoPage';
+import PasswordReset from './pages/PasswordReset';
 
 // ScrollToTop component
 const ScrollToTop = () => {
@@ -74,6 +75,7 @@ function App() {
         <Route path="/post_gallery" element={<ProtectedRoute><PostGalleryPage /></ProtectedRoute>} />
         <Route path="/post_lecturer" element={<ProtectedRoute><PostLecturerPage /></ProtectedRoute>} />
         <Route path="/post_exco" element={<ProtectedRoute><ExcoPage /></ProtectedRoute>} />
+        <Route path="/reset-password/:token" element={<PasswordReset />} />
       </Routes>
       <Footer />
     </AuthProvider>
