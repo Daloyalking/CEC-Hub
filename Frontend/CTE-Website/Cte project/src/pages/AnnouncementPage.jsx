@@ -64,7 +64,7 @@ const AnnouncementPage = () => {
       images.forEach((img) => formData.append("images", img.file));
 
       const res = await axios.post(
-        "http://localhost:4000/api/notification/announcement",
+        "cec-hub-qme6.vercel.app/api/notification/announcement",
         formData,
         {
           headers: {

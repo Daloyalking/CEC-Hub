@@ -20,7 +20,7 @@ const PasswordReset = () => {
 
     try {
       setLoading(true);
-      await axios.put(`http://localhost:4000/api/user/reset-password/${token}`, {
+      await axios.put(`cec-hub-qme6.vercel.app/api/user/reset-password/${token}`, {
         newPassword,
       });
 

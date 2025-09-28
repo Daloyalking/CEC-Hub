@@ -27,7 +27,7 @@ connectCloudinary();
 //Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173","http://localhost:5174", "https://foreverproject.netlify.app"],
+    origin: ["http://localhost:5173"],
     credentials: true,
   })
 );

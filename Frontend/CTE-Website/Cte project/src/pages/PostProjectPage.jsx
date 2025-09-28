@@ -73,7 +73,7 @@ const PostProjectPage = () => {
       );
 
       const response = await axios.post(
-        "http://localhost:4000/api/project",
+        "cec-hub-qme6.vercel.app/api/project",
         formData,
         {
           headers: {

@@ -5,12 +5,13 @@ import { Link } from 'react-router-dom';
 const HomeProject = () => {
   const { projects } = useContext(DeptContext);
   const latestProjects = projects.slice(0, 5);
+  console.log(latestProjects)
 
   return (
     <div className="p-6 mt-5">
       <h1 className="text-2xl font-bold mb-4">Latest Projects</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {latestProjects.map((project) => (
+        {latestProjects?.map((project) => (
           <div key={project._id} className="border rounded-lg p-4 shadow">
             <h2 className="text-lg font-semibold">{project.topic}</h2>
             <p className="text-sm text-gray-600">

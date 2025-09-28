@@ -22,7 +22,7 @@ const DeptContextProvider = ({ children }) => {
   // --- EXCO ---
   const fetchExcos = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/exco");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/exco");
       setExcos(res.data || []);
     } catch (err) {
       console.error("Failed to fetch excos:", err);
@@ -34,7 +34,7 @@ const DeptContextProvider = ({ children }) => {
 
   const addExco = async (formData) => {
     try {
-      const res = await axios.post("http://localhost:4000/api/exco", formData, {
+      const res = await axios.post("cec-hub-qme6.vercel.app/api/exco", formData, {
         headers: { "Content-Type": "multipart/form-data" },
       });
       setExcos((prev) => [res.data, ...prev]);
@@ -55,7 +55,7 @@ const DeptContextProvider = ({ children }) => {
   // --- NOTIFICATIONS ---
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/notification");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/notification");
       setNotification(res.data.notifications || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
@@ -66,7 +66,7 @@ const DeptContextProvider = ({ children }) => {
   // --- GALLERY ---
   const fetchGallery = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/gallery");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/gallery");
       setGallery(res.data || []);
     } catch (err) {
       console.error("Failed to fetch gallery:", err);
@@ -79,7 +79,7 @@ const DeptContextProvider = ({ children }) => {
   // --- LECTURERS ---
   const fetchLecturers = async () => {
     try {
-      const res = await axios.get("http://localhost:4000/api/lecturer");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/lecturer");
       setLecturers(res.data || []);
     } catch (err) {
       console.error("Failed to fetch lecturers:", err);
@@ -92,7 +92,7 @@ const DeptContextProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:4000/api/lecturer",
+        "cec-hub-qme6.vercel.app/api/lecturer",
         formData,
         {
           headers: {
@@ -127,7 +127,7 @@ const DeptContextProvider = ({ children }) => {
   const fetchProjects = async () => {
     setLoadingProjects(true);
     try {
-      const res = await axios.get("http://localhost:4000/api/project");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/project");
       setProjects(res.data || pro); // fallback to local projects if API fails
     } catch (err) {
       console.error("Error fetching projects:", err);

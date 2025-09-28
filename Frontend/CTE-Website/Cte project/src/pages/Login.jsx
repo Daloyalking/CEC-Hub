@@ -104,7 +104,7 @@ const Login = () => {
         }
 
         const res = await axios.post(
-          "http://localhost:4000/api/user/signup",
+          "cec-hub-qme6.vercel.app/api/user/signup",
           data,
           { headers: { "Content-Type": "multipart/form-data" } }
         );
@@ -118,7 +118,7 @@ const Login = () => {
       }
     } else {
       try {
-        const res = await axios.post("http://localhost:4000/api/user/login", {
+        const res = await axios.post("cec-hub-qme6.vercel.app/api/user/login", {
           identifier: formData.identifier,
           password: formData.password,
         });
@@ -142,7 +142,7 @@ const Login = () => {
   }
 
   try {
-    await axios.post("http://localhost:4000/api/user/password-reset-request", {
+    await axios.post("cec-hub-qme6.vercel.app/api/user/password-reset-request", {
       identifier: formData.identifier,
     });
     toast.success("Password reset link sent to your email", { autoClose: 3000 });

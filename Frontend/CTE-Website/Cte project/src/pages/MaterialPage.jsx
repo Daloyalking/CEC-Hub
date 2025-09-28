@@ -19,7 +19,7 @@ const MaterialPage = () => {
   const fetchMaterials = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("http://localhost:4000/api/notification/material");
+      const res = await axios.get("cec-hub-qme6.vercel.app/api/notification/material");
       setMaterials(res.data.materials || []);
     } catch (err) {
       console.error(err);
@@ -84,7 +84,7 @@ const MaterialPage = () => {
       formData.append("descriptions", JSON.stringify(descriptions));
 
       await axios.post(
-        "http://localhost:4000/api/notification/material",
+        "cec-hub-qme6.vercel.app/api/notification/material",
         formData,
         {
           headers: {

@@ -65,7 +65,7 @@ const EventPage = () => {
       }
 
       const res = await axios.post(
-        "http://localhost:4000/api/notification/event",
+        "cec-hub-qme6.vercel.app/api/notification/event",
         formData,
         {
           headers: {
