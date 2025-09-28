@@ -50,7 +50,7 @@ const Lecture_Materials = () => {
 
   // Handle material download
   const handleDownload = (materialId, docPublicId, filename) => {
-    const url = `http://localhost:4000/api/notification/download-material?id=${materialId}&doc=${encodeURIComponent(docPublicId)}`;
+    const url = `https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${materialId}&doc=${encodeURIComponent(docPublicId)}`;
     // Open in new tab to trigger download
     const link = document.createElement("a");
     link.href = url;

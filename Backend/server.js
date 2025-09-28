@@ -25,6 +25,8 @@ connectDB()
 connectCloudinary();
 
 //Middleware
+
+
 app.use(
   cors({
     origin: ["http://localhost:5173","https://cechub.netlify.app"],
@@ -32,6 +34,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use(express.static(path.join(__dirname, "dist")));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 //Api Endpoint
@@ -47,6 +50,9 @@ app.use("/api/lecturer", lecturerRouter);
 
 app.get("/", (req, res) => {
   res.send("Server is working");
+});
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "dist", "index.html"));
 });
 
 app.listen(port, () => console.log(`Server started on port ${port}`));

@@ -67,6 +67,7 @@ const Notifications = () => {
             >
               {/* Title + Author */}
               <div className="flex items-center space-x-3 mb-3">
+                
                 <img
                   src={note.postedBy.image}
                   alt={note.postedBy.name}

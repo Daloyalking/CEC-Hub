@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }) => {
 
       // Fetch latest user data with token
       axios
-        .get(`http://localhost:4000/api/user/${parsedUser._id}`, {
+        .get(`https://cec-hub-qme6.vercel.app/api/user/${parsedUser._id}`, {
           headers: { Authorization: `Bearer ${storedToken}` },
         })
         .then((res) => setUser(res.data.user))

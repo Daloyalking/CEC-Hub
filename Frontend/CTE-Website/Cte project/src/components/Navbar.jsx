@@ -212,7 +212,7 @@ const Navbar = () => {
               onClick={() => navigate("/profile")}
             >
               <img
-                src={user?.picture ? `http://localhost:4000/${user.picture}` : ""}
+                src={user?.picture}
                 alt={user.name || "Profile"}
                 className="w-10 h-10 rounded-full"
               />
@@ -421,7 +421,7 @@ const Navbar = () => {
               }}
             >
               <img
-               src={user?.picture ? `http://localhost:4000/${user.picture}` : ""}
+               src={user?.picture}
                 alt={user.name}
                 className="w-12 h-12 rounded-full border-2 border-white"
               />

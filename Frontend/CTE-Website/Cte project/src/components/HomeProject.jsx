@@ -21,7 +21,7 @@ const HomeProject = () => {
             {project.conductedBy && project.conductedBy.image && (
               <div className="flex items-center mt-2">
                 <img
-                  src={`http://localhost:4000/${project.conductedBy.image}`}
+                  src={`https://cec-hub-qme6.vercel.app/${project.conductedBy.image}`}
                   alt={project.conductedBy.name}
                   className="w-8 h-8 rounded-full mr-2"
                 />

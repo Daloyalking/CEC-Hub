@@ -37,7 +37,7 @@ const ReminderPage = () => {
         return;
       }
 
-      const response = await fetch("http://localhost:4000/api/notification/reminder", {
+      const response = await fetch("https://cec-hub-qme6.vercel.app/api/notification/reminder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

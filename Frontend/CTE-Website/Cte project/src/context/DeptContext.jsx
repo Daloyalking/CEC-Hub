@@ -46,7 +46,7 @@ const DeptContextProvider = ({ children }) => {
 
   const deleteExco = async (id) => {
     try {
-      await axios.delete(`http://localhost:4000/api/exco/${id}`);
+      await axios.delete(`https://cec-hub-qme6.vercel.app/api/exco/${id}`);
       setExcos((prev) => prev.filter((ex) => ex._id !== id));
     } catch (err) {
       console.error("Failed to delete exco:", err);

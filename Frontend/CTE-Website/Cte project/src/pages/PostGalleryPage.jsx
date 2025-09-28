@@ -65,7 +65,7 @@ const PostGalleryPage = () => {
         // formData.append("photoDescriptions", img.description || "");
       });
 
-      const res = await fetch("http://localhost:4000/api/gallery", {
+      const res = await fetch("https://cec-hub-qme6.vercel.app/api/gallery", {
         method: "POST",
         body: formData,
         credentials: "include",

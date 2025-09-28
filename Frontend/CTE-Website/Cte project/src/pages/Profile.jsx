@@ -33,7 +33,7 @@ const Profile = () => {
         level: user.level || "",
         role: user.role || "",
       });
-      setPreview(user.picture ? `http://localhost:4000/${user.picture}` : null);
+      setPreview(user.picture);
     }
   }, [user]);
 
@@ -63,7 +63,7 @@ const Profile = () => {
       }
       if (formData.picture instanceof File) payload.append("picture", formData.picture);
 
-      const res = await fetch("http://localhost:4000/api/user/edit", {
+      const res = await fetch("https://cec-hub-qme6.vercel.app/api/user/edit", {
         method: "PUT",
         headers: { Authorization: `Bearer ${token}` },
         body: payload,
@@ -85,7 +85,7 @@ const Profile = () => {
     if (!oldPassword || !newPassword) return toast.error("Please fill both fields");
 
     try {
-      const res = await fetch("http://localhost:4000/api/user/change-password", {
+      const res = await fetch("https://cec-hub-qme6.vercel.app/api/user/change-password", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
