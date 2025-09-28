@@ -203,7 +203,7 @@ export const requestPasswordReset = async (req, res) => {
       return res.status(500).json({ message: "SMTP credentials are missing" });
     }
 
-    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    const resetLink = `https://cec-hub-qme6.vercel.app/reset-password/${resetToken}`;
 
     await transporter.sendMail({
       from: transporter.options.auth.user,
