@@ -1,7 +1,7 @@
 import transporter from "../config/nodemailer.js";
 import Notification from "../model/notificationModel.js";
 import User from "../model/userModel.js";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "../config/cloudinary.js";
 import fs from "fs";
 import path from "path";
 import axios from "axios";

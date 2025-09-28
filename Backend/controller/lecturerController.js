@@ -1,5 +1,5 @@
 import Lecturer from "../model/Lecturer.js";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "../config/cloudinary.js";
 
 // ✅ Get all lecturers (public)
 export const getLecturers = async (req, res) => {

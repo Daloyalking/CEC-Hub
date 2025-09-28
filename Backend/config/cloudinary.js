@@ -1,4 +1,5 @@
-import { v2 as cloudinary } from "cloudinary";
+import pkg from "cloudinary";
+const { v2: cloudinary } = pkg;
 
 const connectCloudinary = () => {
   cloudinary.config({
@@ -8,4 +9,5 @@ const connectCloudinary = () => {
   });
 };
 
+export { cloudinary };
 export default connectCloudinary;

@@ -1,6 +1,6 @@
 // controllers/galleryController.js
 import Gallery from "../model/Gallery.js";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "../config/cloudinary.js";
 
 // Create new gallery
 export const createGallery = async (req, res) => {

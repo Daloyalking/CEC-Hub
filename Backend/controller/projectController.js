@@ -1,5 +1,5 @@
 import Project from "../model/projectModel.js";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "../config/cloudinary.js";
 import fs from "fs";
 
 // 📌 ADD Project (authenticated, only lecturers)

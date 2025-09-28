@@ -1,5 +1,5 @@
 import Exco from "../model/Exco.js";
-import { v2 as cloudinary } from "cloudinary";
+import { cloudinary } from "../config/cloudinary.js";
 
 export const getExcos = async (req, res) => {
   try {
