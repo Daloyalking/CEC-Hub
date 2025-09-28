@@ -1,6 +1,19 @@
-// controllers/galleryController.js
 import Gallery from "../model/Gallery.js";
 import { cloudinary } from "../config/cloudinary.js";
+
+// Helper: upload one file buffer to Cloudinary
+const uploadToCloudinary = (fileBuffer, folder = "gallery") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
 
 // Create new gallery
 export const createGallery = async (req, res) => {
@@ -15,25 +28,11 @@ export const createGallery = async (req, res) => {
       return res.status(400).json({ message: "No images uploaded" });
     }
 
-    // Helper: upload one file buffer to Cloudinary
-    const uploadToCloudinary = (fileBuffer) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { folder: "gallery" },
-          (error, result) => {
-            if (error) reject(error);
-            else resolve(result.secure_url);
-          }
-        );
-        stream.end(fileBuffer);
-      });
-    };
-
-    // Upload all images
+    // Upload all images in parallel
     const photos = await Promise.all(
       req.files.map(async (file) => ({
         url: await uploadToCloudinary(file.buffer),
-        description: file.originalname, // you can change this to accept captions from frontend
+        description: file.originalname, // you can replace with caption from frontend if needed
       }))
     );
 

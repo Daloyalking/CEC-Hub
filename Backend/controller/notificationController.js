@@ -2,10 +2,24 @@ import transporter from "../config/nodemailer.js";
 import Notification from "../model/notificationModel.js";
 import User from "../model/userModel.js";
 import { cloudinary } from "../config/cloudinary.js";
-import fs from "fs";
+import streamifier from "streamifier";
 import path from "path";
 import axios from "axios";
 
+// ✅ Helper: upload buffer directly to Cloudinary
+function uploadToCloudinary(buffer, folder, resource_type = "image", public_id = null) {
+  return new Promise((resolve, reject) => {
+    const options = { folder, resource_type };
+    if (public_id) options.public_id = public_id;
+
+    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
+      if (result) resolve(result);
+      else reject(error);
+    });
+
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+}
 
 // 📌 GET all notifications
 export const getAllNotifications = async (req, res) => {
@@ -17,7 +31,6 @@ export const getAllNotifications = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
-
 
 // 📌 CREATE Reminder
 export const createReminder = async (req, res) => {
@@ -92,13 +105,12 @@ export const postMaterial = async (req, res) => {
         const ext = path.extname(file.originalname);
         const filename = path.basename(file.originalname, ext);
 
-        const result = await cloudinary.uploader.upload(file.path, {
-          resource_type: "raw",
-          folder: "materials",
-          use_filename: true,
-          unique_filename: true,
-          public_id: `materials/${filename}_${Date.now()}`,
-        });
+        const result = await uploadToCloudinary(
+          file.buffer,
+          "materials",
+          "raw",
+          `materials/${filename}_${Date.now()}`
+        );
 
         uploadedDocs.push({
           url: result.secure_url,
@@ -106,8 +118,6 @@ export const postMaterial = async (req, res) => {
           name: file.originalname,
           description: parsedDescriptions[i] || "No description",
         });
-
-        fs.unlinkSync(file.path); // remove temp file
       }
     }
 
@@ -163,7 +173,7 @@ export const getMaterials = async (req, res) => {
   try {
     const materials = await Notification.find({ type: "material" })
       .sort({ createdAt: -1 })
-      .populate("postedBy", "name picture"); // optional if using ObjectId
+      .populate("postedBy", "name picture");
 
     res.status(200).json({ materials });
   } catch (err) {
@@ -189,8 +199,7 @@ export const downloadMaterial = async (req, res) => {
     let contentType = "application/octet-stream";
     if (ext === "pdf") contentType = "application/pdf";
     else if (ext === "docx")
-      contentType =
-        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     else if (ext === "doc") contentType = "application/msword";
 
     const response = await axios({ url: cloudDoc.url, method: "GET", responseType: "stream" });
@@ -205,11 +214,9 @@ export const downloadMaterial = async (req, res) => {
   }
 };
 
-
 // 📌 POST Announcement
 export const postAnnouncement = async (req, res) => {
   try {
-    // Only lecturers can post announcements
     if (req.user.role !== "lecturer") {
       return res.status(403).json({ message: "Only lecturers can post announcements" });
     }
@@ -222,24 +229,16 @@ export const postAnnouncement = async (req, res) => {
     const uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
+      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-
-        const result = await cloudinary.uploader.upload(file.path, {
-          folder: "announcements",
-          use_filename: true,
-          unique_filename: true,
-        });
+        const result = await uploadToCloudinary(file.buffer, "announcements");
 
         uploadedImages.push({
           url: result.secure_url,
-          description: req.body.descriptions
-            ? JSON.parse(req.body.descriptions)[i] || "No description"
-            : "No description",
+          description: descriptions[i] || "No description",
         });
-
-        // Remove temp file
-        fs.unlinkSync(file.path);
       }
     }
 
@@ -248,10 +247,7 @@ export const postAnnouncement = async (req, res) => {
       title,
       details,
       images: uploadedImages,
-      postedBy: {
-        name: req.user.name,
-        image: req.user.picture,
-      },
+      postedBy: { name: req.user.name, image: req.user.picture },
     });
 
     res.status(201).json({ message: "Announcement posted successfully", announcement });
@@ -261,7 +257,6 @@ export const postAnnouncement = async (req, res) => {
   }
 };
 
-
 // 📌 POST Event
 export const postEvent = async (req, res) => {
   try {
@@ -269,7 +264,6 @@ export const postEvent = async (req, res) => {
       return res.status(401).json({ message: "You must be logged in" });
     }
 
-    // Optional: restrict to lecturers
     if (req.user.role !== "lecturer") {
       return res.status(403).json({ message: "Only lecturers can post events" });
     }
@@ -281,32 +275,25 @@ export const postEvent = async (req, res) => {
 
     let uploadedImages = [];
 
-    // Handle images if provided
     if (req.files && req.files.length > 0) {
+      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
-
-        const result = await cloudinary.uploader.upload(file.path, {
-          resource_type: "image",
-          folder: "events",
-          use_filename: true,
-          unique_filename: true,
-          public_id: `events/${file.originalname}_${Date.now()}`,
-        });
+        const result = await uploadToCloudinary(
+          file.buffer,
+          "events",
+          "image",
+          `events/${file.originalname}_${Date.now()}`
+        );
 
         uploadedImages.push({
           url: result.secure_url,
-          description: req.body.descriptions
-            ? JSON.parse(req.body.descriptions)[i] || "No description"
-            : "No description",
+          description: descriptions[i] || "No description",
         });
-
-        // Remove temp file
-        fs.unlinkSync(file.path);
       }
     }
 
-    // Create event notification
     const event = await Notification.create({
       type: "event",
       title,

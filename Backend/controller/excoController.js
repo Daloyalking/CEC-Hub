@@ -1,5 +1,20 @@
 import Exco from "../model/Exco.js";
 import { cloudinary } from "../config/cloudinary.js";
+import streamifier from "streamifier";
+
+// Helper: upload buffer directly to Cloudinary
+function uploadToCloudinary(buffer, folder) {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
+    streamifier.createReadStream(buffer).pipe(stream);
+  });
+}
 
 export const getExcos = async (req, res) => {
   try {
@@ -19,10 +34,8 @@ export const addExco = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const uploaded = await cloudinary.uploader.upload(file.path, {
-      folder: "excos",
-      resource_type: "image",
-    });
+    // ✅ Upload buffer instead of local path
+    const uploaded = await uploadToCloudinary(file.buffer, "excos");
 
     const newExco = new Exco({
       name,
@@ -49,4 +62,3 @@ export const deleteExco = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
-

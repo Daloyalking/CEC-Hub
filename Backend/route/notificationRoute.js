@@ -12,7 +12,9 @@ import {
 import authMiddleware from "../middleware/authMiddleware.js";
 
 const notificationRouter = express.Router();
-const upload = multer({ dest: "uploads/" });
+
+// ✅ Use memory storage (no local uploads folder)
+const upload = multer({ storage: multer.memoryStorage() });
 
 // POST a reminder
 notificationRouter.post("/reminder", authMiddleware, upload.single("image"), createReminder);
@@ -25,6 +27,8 @@ notificationRouter.get("/material", getMaterials);
 
 // DOWNLOAD a material file
 notificationRouter.get("/download-material", downloadMaterial);
+
+// GET all notifications
 notificationRouter.get("/", getAllNotifications);
 
 // POST announcement (lecturer only)
@@ -35,9 +39,7 @@ notificationRouter.post(
   postAnnouncement
 );
 
-
 // POST an event (lecturer only)
 notificationRouter.post("/event", authMiddleware, upload.array("images"), postEvent);
-
 
 export default notificationRouter;

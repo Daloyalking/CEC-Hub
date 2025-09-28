@@ -1,20 +1,35 @@
 import Lecturer from "../model/Lecturer.js";
 import { cloudinary } from "../config/cloudinary.js";
 
+// ✅ Helper: upload one file buffer to Cloudinary
+const uploadToCloudinary = (fileBuffer, folder = "lecturers") => {
+  return new Promise((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      { folder, resource_type: "image" },
+      (error, result) => {
+        if (error) reject(error);
+        else resolve(result.secure_url);
+      }
+    );
+    stream.end(fileBuffer);
+  });
+};
+
 // ✅ Get all lecturers (public)
 export const getLecturers = async (req, res) => {
   try {
-    const lecturers = await Lecturer.find();
-    res.json(lecturers);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    const lecturers = await Lecturer.find().sort({ createdAt: -1 });
+    res.status(200).json(lecturers);
+  } catch (error) {
+    console.error("Error fetching lecturers:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 // ✅ Add lecturer (HOD only)
 export const addLecturer = async (req, res) => {
   try {
-    if (!req.user || !req.user.position) {
+    if (!req.user || req.user.position !== "hod") {
       return res.status(403).json({ message: "Access denied: HODs only" });
     }
 
@@ -24,33 +39,31 @@ export const addLecturer = async (req, res) => {
     }
 
     // Upload image to Cloudinary
-    const result = await cloudinary.uploader.upload_stream(
-      { folder: "lecturers" },
-      async (error, result) => {
-        if (error) return res.status(500).json({ message: "Image upload failed" });
+    const photoUrl = await uploadToCloudinary(req.file.buffer);
 
-        const newLecturer = new Lecturer({
-          name,
-          hod: hod || false,
-          photo: result.secure_url,
-        });
+    // Save to DB
+    const newLecturer = new Lecturer({
+      name,
+      hod: hod || false,
+      photo: photoUrl,
+    });
 
-        await newLecturer.save();
-        return res.status(201).json(newLecturer);
-      }
-    );
+    await newLecturer.save();
 
-    // Pipe the file buffer to Cloudinary
-    result.end(req.file.buffer);
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+    res.status(201).json({
+      message: "Lecturer added successfully",
+      lecturer: newLecturer,
+    });
+  } catch (error) {
+    console.error("Error adding lecturer:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };
 
 // ✅ Delete lecturer (HOD only)
 export const deleteLecturer = async (req, res) => {
   try {
-    if (!req.user || !req.user.position) {
+    if (!req.user || req.user.position !== "HOD") {
       return res.status(403).json({ message: "Access denied: HODs only" });
     }
 
@@ -60,7 +73,8 @@ export const deleteLecturer = async (req, res) => {
     }
 
     res.json({ message: `${lecturer.name} has been removed.` });
-  } catch (err) {
-    res.status(500).json({ message: "Server error" });
+  } catch (error) {
+    console.error("Error deleting lecturer:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 };

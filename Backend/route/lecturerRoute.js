@@ -7,18 +7,15 @@ import {
 } from "../controller/lecturerController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
-const storage = multer.memoryStorage(); // store in memory buffer
-const upload = multer({ storage });
-
 const lecturerRouter = express.Router();
 
-// Public - get all lecturers
-lecturerRouter.get("/", getLecturers);
+// ✅ Multer setup (memory storage, no disk)
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
-// HOD only - add lecturer
-lecturerRouter.post("/", authMiddleware, upload.single("photo"), addLecturer);
-
-// HOD only - delete lecturer
-lecturerRouter.delete("/:id", authMiddleware, deleteLecturer);
+// Routes
+lecturerRouter.get("/", getLecturers); // Public
+lecturerRouter.post("/", authMiddleware, upload.single("photo"), addLecturer); // HOD only
+lecturerRouter.delete("/:id", authMiddleware, deleteLecturer); // HOD only
 
 export default lecturerRouter;
