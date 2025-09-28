@@ -64,13 +64,14 @@ const AnnouncementPage = () => {
       images.forEach((img) => formData.append("images", img.file));
 
       const res = await axios.post(
-        "cec-hub-qme6.vercel.app/api/notification/announcement",
+        "https://cec-hub-qme6.vercel.app/api/notification/announcement",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 

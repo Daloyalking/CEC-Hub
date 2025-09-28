@@ -14,7 +14,7 @@ const Lecture_Materials = () => {
   // Fetch all notifications from backend
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/notification");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/notification");
       setNotification(res.data.notifications || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);

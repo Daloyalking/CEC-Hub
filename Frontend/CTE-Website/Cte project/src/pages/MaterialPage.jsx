@@ -19,7 +19,7 @@ const MaterialPage = () => {
   const fetchMaterials = async () => {
     setLoading(true);
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/notification/material");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/notification/material");
       setMaterials(res.data.materials || []);
     } catch (err) {
       console.error(err);
@@ -84,13 +84,14 @@ const MaterialPage = () => {
       formData.append("descriptions", JSON.stringify(descriptions));
 
       await axios.post(
-        "cec-hub-qme6.vercel.app/api/notification/material",
+        "https://cec-hub-qme6.vercel.app/api/notification/material",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 

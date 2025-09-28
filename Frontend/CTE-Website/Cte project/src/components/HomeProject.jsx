@@ -4,7 +4,8 @@ import { Link } from 'react-router-dom';
 
 const HomeProject = () => {
   const { projects } = useContext(DeptContext);
-  const latestProjects = projects.slice(0, 5);
+  const latestProjects = projects?.slice(0, 5) || [];
+
   console.log(latestProjects)
 
   return (

@@ -73,13 +73,14 @@ const PostProjectPage = () => {
       );
 
       const response = await axios.post(
-        "cec-hub-qme6.vercel.app/api/project",
+        "https://cec-hub-qme6.vercel.app/api/project",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 

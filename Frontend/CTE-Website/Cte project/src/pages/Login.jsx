@@ -104,24 +104,34 @@ const Login = () => {
         }
 
         const res = await axios.post(
-          "cec-hub-qme6.vercel.app/api/user/signup",
+          "https://cec-hub-qme6.vercel.app/api/user/signup",
           data,
-          { headers: { "Content-Type": "multipart/form-data" } }
+          {
+            headers: { "Content-Type": "multipart/form-data" },
+            withCredentials: true,
+          }
         );
-
         login(res.data.user, res.data.token);
         toast.success("Account created successfully!", { autoClose: 2000 });
         navigate("/");
       } catch (err) {
         console.error(err);
-        toast.error(err.response?.data?.message || "Signup failed", { autoClose: 2500 });
+        toast.error(err.response?.data?.message || "Signup failed", {
+          autoClose: 2500,
+        });
       }
     } else {
       try {
-        const res = await axios.post("cec-hub-qme6.vercel.app/api/user/login", {
-          identifier: formData.identifier,
-          password: formData.password,
-        });
+        const res = await axios.post(
+          "https://cec-hub-qme6.vercel.app/api/user/login",
+          {
+            identifier: formData.identifier,
+            password: formData.password,
+          },
+          {
+            withCredentials: true, // ⬅️ only if cookie-based auth
+          }
+        );
 
         login(res.data.user, res.data.token);
         toast.success("Login successful!", { autoClose: 2000 });
@@ -129,7 +139,8 @@ const Login = () => {
       } catch (err) {
         console.error(err);
         toast.error(
-          err.response?.data?.message || "Incorrect login details. Please try again.",
+          err.response?.data?.message ||
+            "Incorrect login details. Please try again.",
           { autoClose: 2500 }
         );
       }
@@ -137,21 +148,27 @@ const Login = () => {
   };
 
   const handleForgotPassword = async () => {
-  if (!formData.identifier) {
-    return toast.error("Please enter your email/phone/matric first.", { autoClose: 2500 });
-  }
+    if (!formData.identifier) {
+      return toast.error("Please enter your email/phone/matric first.", {
+        autoClose: 2500,
+      });
+    }
 
-  try {
-    await axios.post("cec-hub-qme6.vercel.app/api/user/password-reset-request", {
-      identifier: formData.identifier,
-    });
-    toast.success("Password reset link sent to your email", { autoClose: 3000 });
-  } catch (err) {
-    console.error(err);
-    toast.error(err.response?.data?.message || "Failed to send reset link");
-  }
-};
-
+    try {
+      await axios.post(
+        "https://cec-hub-qme6.vercel.app/api/user/password-reset-request",
+        {
+          identifier: formData.identifier,
+        }
+      );
+      toast.success("Password reset link sent to your email", {
+        autoClose: 3000,
+      });
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to send reset link");
+    }
+  };
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-purple-100 to-purple-300">

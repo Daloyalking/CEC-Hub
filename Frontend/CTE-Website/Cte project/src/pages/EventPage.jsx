@@ -65,13 +65,14 @@ const EventPage = () => {
       }
 
       const res = await axios.post(
-        "cec-hub-qme6.vercel.app/api/notification/event",
+        "https://cec-hub-qme6.vercel.app/api/notification/event",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
 

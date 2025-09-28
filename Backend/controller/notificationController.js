@@ -149,7 +149,7 @@ export const postMaterial = async (req, res) => {
                  ${uploadedDocs
                    .map(
                      (doc) =>
-                       `<li><a href="http://localhost:4000/api/notification/download-material?id=${material._id}&doc=${encodeURIComponent(
+                       `<li><a href="https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${material._id}&doc=${encodeURIComponent(
                          doc.public_id
                        )}">${doc.name}</a></li>`
                    )

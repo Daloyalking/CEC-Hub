@@ -1,6 +1,6 @@
 import React, { createContext, useEffect, useState, useContext } from "react";
 import axios from "axios";
-import pro from "../assets/PastProjectsData";
+
 import { AuthContext } from "./AuthContext";
 import { toast } from "react-toastify";
 
@@ -22,7 +22,7 @@ const DeptContextProvider = ({ children }) => {
   // --- EXCO ---
   const fetchExcos = async () => {
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/exco");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/exco");
       setExcos(res.data || []);
     } catch (err) {
       console.error("Failed to fetch excos:", err);
@@ -34,8 +34,9 @@ const DeptContextProvider = ({ children }) => {
 
   const addExco = async (formData) => {
     try {
-      const res = await axios.post("cec-hub-qme6.vercel.app/api/exco", formData, {
+      const res = await axios.post("https://cec-hub-qme6.vercel.app/api/exco", formData, {
         headers: { "Content-Type": "multipart/form-data" },
+        withCredentials: true,
       });
       setExcos((prev) => [res.data, ...prev]);
     } catch (err) {
@@ -55,7 +56,7 @@ const DeptContextProvider = ({ children }) => {
   // --- NOTIFICATIONS ---
   const fetchNotifications = async () => {
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/notification");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/notification");
       setNotification(res.data.notifications || []);
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
@@ -66,7 +67,7 @@ const DeptContextProvider = ({ children }) => {
   // --- GALLERY ---
   const fetchGallery = async () => {
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/gallery");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/gallery");
       setGallery(res.data || []);
     } catch (err) {
       console.error("Failed to fetch gallery:", err);
@@ -79,7 +80,7 @@ const DeptContextProvider = ({ children }) => {
   // --- LECTURERS ---
   const fetchLecturers = async () => {
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/lecturer");
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/lecturer");
       setLecturers(res.data || []);
     } catch (err) {
       console.error("Failed to fetch lecturers:", err);
@@ -92,13 +93,14 @@ const DeptContextProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        "cec-hub-qme6.vercel.app/api/lecturer",
+        "https://cec-hub-qme6.vercel.app/api/lecturer",
         formData,
         {
           headers: {
             "Content-Type": "multipart/form-data",
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true,
         }
       );
       setLecturers((prev) => [res.data, ...prev]);
@@ -113,7 +115,7 @@ const DeptContextProvider = ({ children }) => {
     if (!token) return console.error("No token found, cannot delete lecturer");
 
     try {
-      await axios.delete(`http://localhost:4000/api/lecturer/${id}`, {
+      await axios.delete(`https://cec-hub-qme6.vercel.app/api/lecturer/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setLecturers((prev) => prev.filter((lec) => lec._id !== id));
@@ -127,12 +129,12 @@ const DeptContextProvider = ({ children }) => {
   const fetchProjects = async () => {
     setLoadingProjects(true);
     try {
-      const res = await axios.get("cec-hub-qme6.vercel.app/api/project");
-      setProjects(res.data || pro); // fallback to local projects if API fails
+      const res = await axios.get("https://cec-hub-qme6.vercel.app/api/project");
+      setProjects(res.data || []); // fallback to local projects if API fails
     } catch (err) {
       console.error("Error fetching projects:", err);
       toast.error("Failed to fetch projects");
-      setProjects(pro);
+      setProjects([]);
     } finally {
       setLoadingProjects(false);
     }
