@@ -7,7 +7,7 @@ const LecturalPage = () => {
   // Fetch lecturers when component mounts
   useEffect(() => {
     fetchLecturers();
-  }, []);
+  }, [lecturers]);
 
   // Sort lecturers: HODs first
   const sortedLecturers = [...lecturers].sort((a, b) => b.hod - a.hod);
@@ -28,7 +28,7 @@ const LecturalPage = () => {
           sortedLecturers.map((lecturer) => (
             <div
               key={lecturer._id} // use backend _id
-              className="bg-white shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2"
+              className="bg-white shadow-xl rounded-xl overflow-hidden hover:shadow-2xl transition transform hover:-translate-y-2 flex flex-col justify-between"
             >
               {/* Photo */}
               <div className="w-full h-64 overflow-hidden">

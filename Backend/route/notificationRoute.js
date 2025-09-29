@@ -39,7 +39,25 @@ notificationRouter.post(
   postAnnouncement
 );
 
+
 // POST an event (lecturer only)
 notificationRouter.post("/event", authMiddleware, upload.array("images"), postEvent);
+
+// UPDATE an event
+notificationRouter.put(
+  "/event/:id",
+  authMiddleware,
+  upload.array("images"),
+  updateEvent
+);
+
+// UPDATE an announcement
+notificationRouter.put(
+  "/announcement/:id",
+  authMiddleware,
+  upload.array("images"),
+  updateAnnouncement
+);
+
 
 export default notificationRouter;

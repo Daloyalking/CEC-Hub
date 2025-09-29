@@ -7,15 +7,23 @@ import path from "path";
 import axios from "axios";
 
 // ✅ Helper: upload buffer directly to Cloudinary
-function uploadToCloudinary(buffer, folder, resource_type = "image", public_id = null) {
+function uploadToCloudinary(
+  buffer,
+  folder,
+  resource_type = "image",
+  public_id = null
+) {
   return new Promise((resolve, reject) => {
     const options = { folder, resource_type };
     if (public_id) options.public_id = public_id;
 
-    const stream = cloudinary.uploader.upload_stream(options, (error, result) => {
-      if (result) resolve(result);
-      else reject(error);
-    });
+    const stream = cloudinary.uploader.upload_stream(
+      options,
+      (error, result) => {
+        if (result) resolve(result);
+        else reject(error);
+      }
+    );
 
     streamifier.createReadStream(buffer).pipe(stream);
   });
@@ -36,7 +44,9 @@ export const getAllNotifications = async (req, res) => {
 export const createReminder = async (req, res) => {
   try {
     if (req.user.role !== "lecturer") {
-      return res.status(403).json({ message: "Only lecturers can send reminders" });
+      return res
+        .status(403)
+        .json({ message: "Only lecturers can send reminders" });
     }
 
     const { title, details, level } = req.body;
@@ -44,7 +54,9 @@ export const createReminder = async (req, res) => {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const students = await User.find({ role: "student", level }).select("email");
+    const students = await User.find({ role: "student", level }).select(
+      "email"
+    );
     const studentEmails = students.map((s) => s.email);
     if (!studentEmails.length) {
       return res.status(404).json({ message: `No students found in ${level}` });
@@ -65,11 +77,15 @@ export const createReminder = async (req, res) => {
       html: `<h2>${title}</h2>
              <p>${details}</p>
              <p><b>This reminder goes to all ${level} students.</b></p>
-             <p>Sent by: ${req.user.name}<br/>Time: ${new Date().toLocaleString()}</p>`,
+             <p>Sent by: ${
+               req.user.name
+             }<br/>Time: ${new Date().toLocaleString()}</p>`,
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(201).json({ message: "Reminder sent successfully", notification });
+    res
+      .status(201)
+      .json({ message: "Reminder sent successfully", notification });
   } catch (error) {
     console.error("Error creating reminder:", error);
     res.status(500).json({ message: "Server error" });
@@ -80,12 +96,16 @@ export const createReminder = async (req, res) => {
 export const postMaterial = async (req, res) => {
   try {
     if (req.user.role !== "lecturer") {
-      return res.status(403).json({ message: "Only lecturers can post materials" });
+      return res
+        .status(403)
+        .json({ message: "Only lecturers can post materials" });
     }
 
     const { title, details, level, descriptions } = req.body;
     if (!title || !details || !level) {
-      return res.status(400).json({ message: "Title, details, and level are required" });
+      return res
+        .status(400)
+        .json({ message: "Title, details, and level are required" });
     }
 
     let parsedDescriptions = [];
@@ -149,13 +169,17 @@ export const postMaterial = async (req, res) => {
                  ${uploadedDocs
                    .map(
                      (doc) =>
-                       `<li><a href="https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${material._id}&doc=${encodeURIComponent(
-                         doc.public_id
-                       )}">${doc.name}</a></li>`
+                       `<li><a href="https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${
+                         material._id
+                       }&doc=${encodeURIComponent(doc.public_id)}">${
+                         doc.name
+                       }</a></li>`
                    )
                    .join("")}
                </ul>
-               <p>Sent by: ${req.user.name}<br/>Time: ${new Date().toLocaleString()}</p>`,
+               <p>Sent by: ${
+                 req.user.name
+               }<br/>Time: ${new Date().toLocaleString()}</p>`,
       };
 
       await transporter.sendMail(mailOptions);
@@ -187,24 +211,40 @@ export const downloadMaterial = async (req, res) => {
   try {
     const { id, doc } = req.query;
     if (!id || !doc)
-      return res.status(400).json({ message: "Missing material ID or document ID" });
+      return res
+        .status(400)
+        .json({ message: "Missing material ID or document ID" });
 
     const material = await Notification.findById(id);
-    if (!material) return res.status(404).json({ message: "Material not found" });
+    if (!material)
+      return res.status(404).json({ message: "Material not found" });
 
-    const cloudDoc = material.documents.find((d) => d.public_id === decodeURIComponent(doc));
-    if (!cloudDoc) return res.status(404).json({ message: "Document not found in material" });
+    const cloudDoc = material.documents.find(
+      (d) => d.public_id === decodeURIComponent(doc)
+    );
+    if (!cloudDoc)
+      return res
+        .status(404)
+        .json({ message: "Document not found in material" });
 
     const ext = cloudDoc.name.split(".").pop().toLowerCase();
     let contentType = "application/octet-stream";
     if (ext === "pdf") contentType = "application/pdf";
     else if (ext === "docx")
-      contentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+      contentType =
+        "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
     else if (ext === "doc") contentType = "application/msword";
 
-    const response = await axios({ url: cloudDoc.url, method: "GET", responseType: "stream" });
+    const response = await axios({
+      url: cloudDoc.url,
+      method: "GET",
+      responseType: "stream",
+    });
 
-    res.setHeader("Content-Disposition", `attachment; filename="${cloudDoc.name}"`);
+    res.setHeader(
+      "Content-Disposition",
+      `attachment; filename="${cloudDoc.name}"`
+    );
     res.setHeader("Content-Type", contentType);
 
     response.data.pipe(res);
@@ -217,19 +257,29 @@ export const downloadMaterial = async (req, res) => {
 // 📌 POST Announcement
 export const postAnnouncement = async (req, res) => {
   try {
-    if (req.user.role !== "lecturer") {
-      return res.status(403).json({ message: "Only lecturers can post announcements" });
+    if (
+      req.user.role !== "lecturer" ||
+      req.user.position !== "President" ||
+      req.user.position !== "Public Relations Officer (PRO)"
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Only lecturers/president/ can post announcements" });
     }
 
     const { title, details } = req.body;
     if (!title || !details) {
-      return res.status(400).json({ message: "Title and details are required" });
+      return res
+        .status(400)
+        .json({ message: "Title and details are required" });
     }
 
     const uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
-      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+      const descriptions = req.body.descriptions
+        ? JSON.parse(req.body.descriptions)
+        : [];
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
@@ -250,7 +300,9 @@ export const postAnnouncement = async (req, res) => {
       postedBy: { name: req.user.name, image: req.user.picture },
     });
 
-    res.status(201).json({ message: "Announcement posted successfully", announcement });
+    res
+      .status(201)
+      .json({ message: "Announcement posted successfully", announcement });
   } catch (error) {
     console.error("Error posting announcement:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -265,18 +317,24 @@ export const postEvent = async (req, res) => {
     }
 
     if (req.user.role !== "lecturer") {
-      return res.status(403).json({ message: "Only lecturers can post events" });
+      return res
+        .status(403)
+        .json({ message: "Only lecturers can post events" });
     }
 
     const { title, details } = req.body;
     if (!title || !details) {
-      return res.status(400).json({ message: "Title and details are required" });
+      return res
+        .status(400)
+        .json({ message: "Title and details are required" });
     }
 
     let uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
-      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+      const descriptions = req.body.descriptions
+        ? JSON.parse(req.body.descriptions)
+        : [];
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
@@ -305,6 +363,98 @@ export const postEvent = async (req, res) => {
     res.status(201).json({ message: "Event posted successfully", event });
   } catch (error) {
     console.error("Error posting event:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+
+// 📌 UPDATE Event
+export const updateEvent = async (req, res) => {
+  try {
+    if (req.user.role !== "lecturer" ||
+      req.user.position !== "President" ||
+      req.user.position !== "Public Relations Officer (PRO)") {
+      return res.status(403).json({ message: "Only lecturers can edit events" });
+    }
+
+    const { id } = req.params;
+    const { title, details } = req.body;
+
+    let uploadedImages = [];
+
+    if (req.files && req.files.length > 0) {
+      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const result = await uploadToCloudinary(
+          file.buffer,
+          "events",
+          "image",
+          `events/${file.originalname}_${Date.now()}`
+        );
+
+        uploadedImages.push({
+          url: result.secure_url,
+          description: descriptions[i] || "No description",
+        });
+      }
+    }
+
+    const updatedEvent = await Notification.findByIdAndUpdate(
+      id,
+      { title, details, $push: { images: { $each: uploadedImages } } },
+      { new: true }
+    );
+
+    if (!updatedEvent) return res.status(404).json({ message: "Event not found" });
+
+    res.status(200).json({ message: "Event updated successfully", updatedEvent });
+  } catch (error) {
+    console.error("Error updating event:", error);
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+// 📌 UPDATE Announcement
+export const updateAnnouncement = async (req, res) => {
+  try {
+    if (req.user.role !== "lecturer" ||
+      req.user.position !== "President" ||
+      req.user.position !== "Public Relations Officer (PRO)") {
+      return res.status(403).json({ message: "Only lecturers can edit announcements" });
+    }
+
+    const { id } = req.params;
+    const { title, details } = req.body;
+
+    let uploadedImages = [];
+
+    if (req.files && req.files.length > 0) {
+      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+
+      for (let i = 0; i < req.files.length; i++) {
+        const file = req.files[i];
+        const result = await uploadToCloudinary(file.buffer, "announcements");
+
+        uploadedImages.push({
+          url: result.secure_url,
+          description: descriptions[i] || "No description",
+        });
+      }
+    }
+
+    const updatedAnnouncement = await Notification.findByIdAndUpdate(
+      id,
+      { title, details, $push: { images: { $each: uploadedImages } } },
+      { new: true }
+    );
+
+    if (!updatedAnnouncement) return res.status(404).json({ message: "Announcement not found" });
+
+    res.status(200).json({ message: "Announcement updated successfully", updatedAnnouncement });
+  } catch (error) {
+    console.error("Error updating announcement:", error);
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
