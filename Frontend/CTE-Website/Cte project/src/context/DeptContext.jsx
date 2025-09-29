@@ -119,8 +119,11 @@ const DeptContextProvider = ({ children }) => {
         headers: { Authorization: `Bearer ${token}` },
         withCredentials: true,
       });
+      console.log(id)
+      
       setLecturers((prev) => prev.filter((lec) => lec._id !== id));
     } catch (err) {
+      console.log(err)
       console.error("Failed to delete lecturer:", err);
       throw err;
     }
