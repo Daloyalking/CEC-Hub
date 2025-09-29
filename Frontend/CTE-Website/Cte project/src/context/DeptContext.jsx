@@ -117,6 +117,7 @@ const DeptContextProvider = ({ children }) => {
     try {
       await axios.delete(`https://cec-hub-qme6.vercel.app/api/lecturer/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
       });
       setLecturers((prev) => prev.filter((lec) => lec._id !== id));
     } catch (err) {

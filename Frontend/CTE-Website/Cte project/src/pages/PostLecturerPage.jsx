@@ -61,7 +61,7 @@ const PostLecturerPage = () => {
 
   const handleDeleteLecturer = async (id, lecturerName) => {
     try {
-      await deleteLecturer(id, token);
+      await deleteLecturer(id);
       toast.info(`${lecturerName} has been removed.`);
     } catch (err) {
       toast.error("Failed to delete lecturer");
