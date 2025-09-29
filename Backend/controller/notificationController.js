@@ -367,14 +367,17 @@ export const postEvent = async (req, res) => {
   }
 };
 
-
 // 📌 UPDATE Event
 export const updateEvent = async (req, res) => {
   try {
-    if (req.user.role !== "lecturer" ||
+    if (
+      req.user.role !== "lecturer" ||
       req.user.position !== "President" ||
-      req.user.position !== "Public Relations Officer (PRO)") {
-      return res.status(403).json({ message: "Only lecturers can edit events" });
+      req.user.position !== "Public Relations Officer (PRO)"
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Only lecturers can edit events" });
     }
 
     const { id } = req.params;
@@ -383,7 +386,9 @@ export const updateEvent = async (req, res) => {
     let uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
-      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+      const descriptions = req.body.descriptions
+        ? JSON.parse(req.body.descriptions)
+        : [];
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
@@ -407,9 +412,12 @@ export const updateEvent = async (req, res) => {
       { new: true }
     );
 
-    if (!updatedEvent) return res.status(404).json({ message: "Event not found" });
+    if (!updatedEvent)
+      return res.status(404).json({ message: "Event not found" });
 
-    res.status(200).json({ message: "Event updated successfully", updatedEvent });
+    res
+      .status(200)
+      .json({ message: "Event updated successfully", updatedEvent });
   } catch (error) {
     console.error("Error updating event:", error);
     res.status(500).json({ message: "Server error", error: error.message });
@@ -419,10 +427,14 @@ export const updateEvent = async (req, res) => {
 // 📌 UPDATE Announcement
 export const updateAnnouncement = async (req, res) => {
   try {
-    if (req.user.role !== "lecturer" ||
+    if (
+      req.user.role !== "lecturer" ||
       req.user.position !== "President" ||
-      req.user.position !== "Public Relations Officer (PRO)") {
-      return res.status(403).json({ message: "Only lecturers can edit announcements" });
+      req.user.position !== "Public Relations Officer (PRO)"
+    ) {
+      return res
+        .status(403)
+        .json({ message: "Only lecturers can edit announcements" });
     }
 
     const { id } = req.params;
@@ -431,7 +443,9 @@ export const updateAnnouncement = async (req, res) => {
     let uploadedImages = [];
 
     if (req.files && req.files.length > 0) {
-      const descriptions = req.body.descriptions ? JSON.parse(req.body.descriptions) : [];
+      const descriptions = req.body.descriptions
+        ? JSON.parse(req.body.descriptions)
+        : [];
 
       for (let i = 0; i < req.files.length; i++) {
         const file = req.files[i];
@@ -450,9 +464,15 @@ export const updateAnnouncement = async (req, res) => {
       { new: true }
     );
 
-    if (!updatedAnnouncement) return res.status(404).json({ message: "Announcement not found" });
+    if (!updatedAnnouncement)
+      return res.status(404).json({ message: "Announcement not found" });
 
-    res.status(200).json({ message: "Announcement updated successfully", updatedAnnouncement });
+    res
+      .status(200)
+      .json({
+        message: "Announcement updated successfully",
+        updatedAnnouncement,
+      });
   } catch (error) {
     console.error("Error updating announcement:", error);
     res.status(500).json({ message: "Server error", error: error.message });
