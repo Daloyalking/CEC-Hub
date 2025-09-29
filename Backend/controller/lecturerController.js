@@ -62,7 +62,9 @@ export const addLecturer = async (req, res) => {
 
 // ✅ Delete lecturer (HOD only)
 export const deleteLecturer = async (req, res) => {
+  
   try {
+    console.log(req.user)
     if (!req.user || req.user.position !== "hod") {
       return res.status(403).json({ message: "Access denied: HODs only" });
     }
