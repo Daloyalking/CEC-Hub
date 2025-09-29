@@ -112,22 +112,30 @@ const DeptContextProvider = ({ children }) => {
   };
 
   const deleteLecturer = async (id) => {
-    if (!token) return console.error("No token found, cannot delete lecturer");
+  if (!token) {
+    console.error("No token found, cannot delete lecturer");
+    return;
+  }
 
-    try {
-      await axios.delete(`https://cec-hub-qme6.vercel.app/api/lecturer/${id}`, {
+  try {
+    const result = await axios.delete(
+      `https://cec-hub-qme6.vercel.app/api/lecturer/${id}`,
+      {
         headers: { Authorization: `Bearer ${token}` },
+        params: { id }, // explicitly pass id as a param (in addition to URL)
         withCredentials: true,
-      });
-      console.log(id)
-      
-      setLecturers((prev) => prev.filter((lec) => lec._id !== id));
-    } catch (err) {
-      console.log(err)
-      console.error("Failed to delete lecturer:", err);
-      throw err;
-    }
-  };
+      }
+    );
+
+    console.log("Delete result:", result.data);
+
+    setLecturers((prev) => prev.filter((lec) => lec._id !== id));
+  } catch (err) {
+    console.error("Failed to delete lecturer:", err.response?.data || err.message);
+    throw err;
+  }
+};
+
 
   // --- PROJECTS ---
   const fetchProjects = async () => {
