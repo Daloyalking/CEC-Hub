@@ -1,8 +1,8 @@
 import React, { createContext, useEffect, useState, useContext } from "react";
 import axios from "axios";
-import { toast } from "react-toastify";
 
 import { AuthContext } from "./AuthContext";
+import { toast } from "react-toastify";
 
 export const DeptContext = createContext();
 
@@ -33,28 +33,39 @@ const DeptContextProvider = ({ children }) => {
   };
 
   const addExco = async (formData) => {
+    if (!token) return toast.error("Not authorized");
+
     try {
-      const res = await axios.post(
-        "https://cec-hub-qme6.vercel.app/api/exco",
-        formData,
-        { headers: { "Content-Type": "multipart/form-data" }, withCredentials: true }
-      );
+      const res = await axios.post("https://cec-hub-qme6.vercel.app/api/exco", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      });
       setExcos((prev) => [res.data, ...prev]);
     } catch (err) {
       console.error("Failed to add exco:", err);
+      toast.error(err.response?.data?.message || "Failed to add exco");
     }
   };
 
   const deleteExco = async (id) => {
+    if (!token) return toast.error("Not authorized");
+
     try {
-      await axios.delete(`https://cec-hub-qme6.vercel.app/api/exco/${id}`);
+      await axios.delete(`https://cec-hub-qme6.vercel.app/api/exco/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      });
       setExcos((prev) => prev.filter((ex) => ex._id !== id));
     } catch (err) {
       console.error("Failed to delete exco:", err);
+      toast.error(err.response?.data?.message || "Failed to delete exco");
     }
   };
 
-  // --- NOTIFICATIONS / ANNOUNCEMENTS ---
+  // --- NOTIFICATIONS ---
   const fetchNotifications = async () => {
     try {
       const res = await axios.get("https://cec-hub-qme6.vercel.app/api/notification");
@@ -62,46 +73,6 @@ const DeptContextProvider = ({ children }) => {
     } catch (err) {
       console.error("Failed to fetch notifications:", err);
       setNotification([]);
-    }
-  };
-
-  const addAnnouncement = async (formData) => {
-    if (!token) return console.error("No token found, cannot post announcement");
-    try {
-      const res = await axios.post(
-        "https://cec-hub-qme6.vercel.app/api/notification/announcement",
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
-      setNotification((prev) => [res.data.announcement, ...prev]);
-      return res.data.announcement;
-    } catch (err) {
-      console.error("Failed to post announcement:", err.response?.data || err.message);
-      throw err;
-    }
-  };
-
-  const updateAnnouncement = async (id, formData) => {
-    if (!token) return console.error("No token found, cannot update announcement");
-    try {
-      const res = await axios.put(
-        `https://cec-hub-qme6.vercel.app/api/notification/announcement/${id}`,
-        formData,
-        {
-          headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
-      setNotification((prev) =>
-        prev.map((ann) => (ann._id === id ? res.data.updatedAnnouncement : ann))
-      );
-      return res.data.updatedAnnouncement;
-    } catch (err) {
-      console.error("Failed to update announcement:", err.response?.data || err.message);
-      throw err;
     }
   };
 
@@ -130,13 +101,17 @@ const DeptContextProvider = ({ children }) => {
   };
 
   const addLecturer = async (formData) => {
-    if (!token) return console.error("No token found, cannot add lecturer");
+    if (!token) return toast.error("Not authorized");
+
     try {
       const res = await axios.post(
         "https://cec-hub-qme6.vercel.app/api/lecturer",
         formData,
         {
-          headers: { "Content-Type": "multipart/form-data", Authorization: `Bearer ${token}` },
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
           withCredentials: true,
         }
       );
@@ -144,17 +119,29 @@ const DeptContextProvider = ({ children }) => {
       return res.data;
     } catch (err) {
       console.error("Failed to add lecturer:", err);
+      toast.error(err.response?.data?.message || "Failed to add lecturer");
       throw err;
     }
   };
 
   const deleteLecturer = async (id) => {
-    if (!token) return console.error("No token found, cannot delete lecturer");
+    if (!token) return toast.error("Not authorized");
+
     try {
-      await axios.delete(`https://cec-hub-qme6.vercel.app/api/lecturer/${id}`);
+      const result = await axios.delete(
+        `https://cec-hub-qme6.vercel.app/api/lecturer/${id}`,
+        {
+          headers: { Authorization: `Bearer ${token}` },
+          withCredentials: true,
+        }
+      );
+
+      console.log("Delete result:", result.data);
+
       setLecturers((prev) => prev.filter((lec) => lec._id !== id));
     } catch (err) {
       console.error("Failed to delete lecturer:", err.response?.data || err.message);
+      toast.error(err.response?.data?.message || "Failed to delete lecturer");
       throw err;
     }
   };
@@ -201,9 +188,6 @@ const DeptContextProvider = ({ children }) => {
     addLecturer,
     fetchLecturers,
     deleteLecturer,
-    addAnnouncement,
-    updateAnnouncement,
-    fetchNotifications,
     loadingGallery,
     loadingExcos,
     loadingProjects,

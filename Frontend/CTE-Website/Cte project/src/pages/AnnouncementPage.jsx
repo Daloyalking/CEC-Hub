@@ -1,39 +1,16 @@
-import React, { useState, useContext, useEffect } from "react";
+// AnnouncementPage.jsx
+import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
-import { DeptContext } from "../context/DeptContext";
+import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const AnnouncementPage = () => {
-  const { user, token } = useContext(AuthContext);
-  const { notification, addAnnouncement, updateAnnouncement, fetchNotifications } =
-    useContext(DeptContext);
-
+  const { user, token } = useContext(AuthContext); // logged-in user
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
   const [images, setImages] = useState([]); // {file, preview, description}
-  const [posting, setPosting] = useState(false);
-  const [editingId, setEditingId] = useState(null);
-
-  // Fetch latest notifications when component mounts
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
-
-  // Handle edit button click
-  const handleEdit = (ann) => {
-    setTitle(ann.title);
-    setDetails(ann.details);
-    setImages(
-      ann.images.map((img) => ({
-        file: null,
-        preview: img.url,
-        description: img.description,
-      }))
-    );
-    setEditingId(ann._id);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  };
+  const [posting, setPosting] = useState(false); // loading indicator
 
   // Handle image selection
   const handleFileChange = (e) => {
@@ -41,7 +18,7 @@ const AnnouncementPage = () => {
     const newImages = files.map((file) => ({
       file,
       preview: URL.createObjectURL(file),
-      description: "",
+      description: "", // user will fill
     }));
     setImages([...images, ...newImages]);
   };
@@ -53,13 +30,12 @@ const AnnouncementPage = () => {
     setImages(newImages);
   };
 
-  // Remove selected image
+  // Remove image
   const handleRemoveImage = (index) => {
     const newImages = images.filter((_, i) => i !== index);
     setImages(newImages);
   };
 
-  // Submit new announcement or update existing one
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -68,92 +44,105 @@ const AnnouncementPage = () => {
       return;
     }
 
-    if (!user || (user.role !== "lecturer" && !["President", "Public Relations Officer (PRO)"].includes(user.position))) {
-  toast.error("You are not authorized to post or edit announcements.");
-  return;
-}
+    if (!user || user.role !== "lecturer") {
+      toast.error("Only lecturers can post announcements.");
+      return;
+    }
 
-    setPosting(true);
+    setPosting(true); // start posting indicator
 
     try {
       const formData = new FormData();
       formData.append("title", title);
       formData.append("details", details);
 
-      // Add image descriptions
+      // Include descriptions array
       const descriptions = images.map((img) => img.description || "No description");
       formData.append("descriptions", JSON.stringify(descriptions));
 
-      // Add files if they exist
-      images.forEach((img) => img.file && formData.append("images", img.file));
+      // Append image files
+      images.forEach((img) => formData.append("images", img.file));
 
-      if (editingId) {
-        // Update existing announcement
-        await updateAnnouncement(editingId, formData);
-        toast.success("Announcement updated successfully!");
-      } else {
-        // Add new announcement
-        await addAnnouncement(formData);
-        toast.success("Announcement posted successfully!");
-      }
+      const res = await axios.post(
+        "https://cec-hub-qme6.vercel.app/api/notification/announcement",
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+
+      toast.success("Announcement posted successfully!");
+      console.log("Posted announcement:", res.data.announcement);
 
       // Reset form
       setTitle("");
       setDetails("");
       setImages([]);
-      setEditingId(null);
-
-      fetchNotifications();
     } catch (err) {
       console.error(err);
-      toast.error(err.response?.data?.message || "Failed to post/update announcement.");
+      toast.error(err.response?.data?.message || "Failed to post announcement.");
     } finally {
-      setPosting(false);
+      setPosting(false); // stop posting indicator
     }
   };
 
   return (
-    <div className="min-h-screen p-6 bg-white">
+    <div className="min-h-screen flex items-center justify-center bg-white p-6">
       <ToastContainer position="top-right" />
-      <div className="w-full max-w-2xl mx-auto p-8 bg-purple-50 rounded-3xl shadow-xl border border-purple-200 mb-8">
+      <div className="w-full max-w-2xl p-8 bg-purple-50 rounded-3xl shadow-xl border border-purple-200">
         <h1 className="text-3xl font-bold text-purple-700 mb-6 text-center">
-          {editingId ? "Edit Announcement" : "Post an Announcement"}
+          Post an Announcement
         </h1>
 
         <form onSubmit={handleSubmit} className="space-y-5">
           {/* Title */}
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title"
-            className="w-full p-3 rounded-xl border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
-            disabled={posting}
-            required
-          />
+          <div>
+            <label className="block mb-2 font-semibold text-purple-800">Title</label>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="w-full p-3 rounded-xl border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400"
+              placeholder="Enter announcement title"
+              required
+              disabled={posting}
+            />
+          </div>
 
           {/* Details */}
-          <textarea
-            value={details}
-            onChange={(e) => setDetails(e.target.value)}
-            placeholder="Details"
-            rows={5}
-            className="w-full p-3 rounded-xl border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
-            disabled={posting}
-            required
-          />
+          <div>
+            <label className="block mb-2 font-semibold text-purple-800">Details</label>
+            <textarea
+              value={details}
+              onChange={(e) => setDetails(e.target.value)}
+              className="w-full p-3 rounded-xl border border-purple-300 focus:outline-none focus:ring-2 focus:ring-purple-400 resize-none"
+              placeholder="Enter announcement details"
+              rows={5}
+              required
+              disabled={posting}
+            />
+          </div>
 
           {/* Images */}
-          <input
-            type="file"
-            accept="image/*"
-            multiple
-            onChange={handleFileChange}
-            disabled={posting}
-            className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
-          />
+          <div>
+            <label className="block mb-2 font-semibold text-purple-800">
+              Upload Images (Optional)
+            </label>
+            <input
+              type="file"
+              accept="image/*"
+              multiple
+              onChange={handleFileChange}
+              className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-400"
+              disabled={posting}
+            />
+          </div>
 
-          {/* Preview of images */}
+          {/* Preview of selected images */}
           {images.length > 0 && (
             <div className="flex flex-wrap gap-4 mt-4">
               {images.map((img, index) => (
@@ -191,43 +180,9 @@ const AnnouncementPage = () => {
             }`}
             disabled={posting}
           >
-            {posting ? (editingId ? "Updating..." : "Posting...") : editingId ? "Update Announcement" : "Post Announcement"}
+            {posting ? "Posting..." : "Post Announcement"}
           </button>
         </form>
-      </div>
-
-      {/* List of announcements */}
-      <div className="w-full max-w-2xl mx-auto space-y-6">
-        {notification
-          .filter((n) => n.type === "announcement")
-          .map((ann) => (
-            <div key={ann._id} className="p-4 border rounded-xl bg-purple-50 border-purple-200 shadow">
-              <h2 className="font-bold text-lg text-purple-700">{ann.title}</h2>
-              <p className="mt-2 text-gray-800">{ann.details}</p>
-              {ann.images.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {ann.images.map((img, idx) => (
-                    <img
-                      key={idx}
-                      src={img.url}
-                      alt={img.description || `image-${idx}`}
-                      className="w-24 h-24 object-cover rounded-lg border border-purple-300"
-                    />
-                  ))}
-                </div>
-              )}
-              {(user?.position === "President" ||
-                user?.position === "Public Relations Officer (PRO)" ||
-                user?.role === "lecturer") && (
-                <button
-                  onClick={() => handleEdit(ann)}
-                  className="mt-3 bg-yellow-400 text-white py-1 px-3 rounded hover:bg-yellow-500 transition"
-                >
-                  Edit
-                </button>
-              )}
-            </div>
-          ))}
       </div>
     </div>
   );
