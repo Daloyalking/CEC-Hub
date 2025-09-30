@@ -251,7 +251,7 @@ export default function EventPage() {
       editNewImages.forEach((img) => formData.append("images", img.file));
 
       await axios.put(
-        `http://localhost:4000/api/notification/event/${editingId}`,
+        `https://cec-hub-qme6.vercel.app/api/notification/event/${editingId}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },
