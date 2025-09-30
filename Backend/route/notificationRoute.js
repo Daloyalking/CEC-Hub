@@ -8,6 +8,8 @@ import {
   postEvent,
   getAllNotifications,
   postAnnouncement,
+  updateEvent,
+  updateAnnouncement,
 } from "../controller/notificationController.js";
 import authMiddleware from "../middleware/authMiddleware.js";
 
