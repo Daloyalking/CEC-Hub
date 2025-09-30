@@ -16,6 +16,5 @@ const upload = multer({ storage });
 // Routes
 lecturerRouter.get("/", getLecturers); // Public
 lecturerRouter.post("/", authMiddleware, upload.single("photo"), addLecturer); // HOD only
-lecturerRouter.delete("/:id",deleteLecturer); 
-
+lecturerRouter.delete("/:id", authMiddleware, deleteLecturer); 
 export default lecturerRouter;

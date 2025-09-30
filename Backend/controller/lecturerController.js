@@ -63,6 +63,12 @@ export const addLecturer = async (req, res) => {
 // ✅ Delete lecturer (HOD only)
 export const deleteLecturer = async (req, res) => {
   try {
+    // ✅ Only HOD can delete lecturers
+    if (!req.user || req.user.role !== "hod") {
+      return res
+        .status(403)
+        .json({ message: "Only HOD can delete lecturers" });
+    }
 
     const lecturer = await Lecturer.findByIdAndDelete(req.params.id);
     if (!lecturer) {

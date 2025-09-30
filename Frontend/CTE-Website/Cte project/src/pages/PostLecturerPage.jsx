@@ -14,7 +14,8 @@ const PostLecturerPage = () => {
   const [hodStatus, setHodStatus] = useState("others"); // default select value
   const [loading, setLoading] = useState(false); // loading state
 
-  if (!user || !user.position) {
+  // ✅ Only HODs can access this page
+  if (!user || user.role !== "hod") {
     return (
       <div className="text-center mt-20">
         <h1 className="text-2xl font-semibold text-red-500">
@@ -61,7 +62,7 @@ const PostLecturerPage = () => {
 
   const handleDeleteLecturer = async (id, lecturerName) => {
     try {
-      await deleteLecturer(id);
+      await deleteLecturer(id, token);
       toast.info(`${lecturerName} has been removed.`);
     } catch (err) {
       toast.error("Failed to delete lecturer");
@@ -147,12 +148,15 @@ const PostLecturerPage = () => {
                 Head of Department
               </span>
             )}
-            <button
-              onClick={() => handleDeleteLecturer(lecturer._id, lecturer.name)}
-              className="mt-3 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
-            >
-              Delete
-            </button>
+            {/* ✅ Delete button only for HOD */}
+            {user?.role === "hod" && (
+              <button
+                onClick={() => handleDeleteLecturer(lecturer._id, lecturer.name)}
+                className="mt-3 bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 transition"
+              >
+                Delete
+              </button>
+            )}
           </div>
         ))}
       </div>

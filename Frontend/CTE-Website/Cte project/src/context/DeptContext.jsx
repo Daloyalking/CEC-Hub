@@ -125,26 +125,26 @@ const DeptContextProvider = ({ children }) => {
   };
 
   const deleteLecturer = async (id) => {
-    if (!token) return toast.error("Not authorized");
+  if (!token) return toast.error("Not authorized");
 
-    try {
-      const result = await axios.delete(
-        `https://cec-hub-qme6.vercel.app/api/lecturer/${id}`,
-        {
-          headers: { Authorization: `Bearer ${token}` },
-          withCredentials: true,
-        }
-      );
+  try {
+    const result = await axios.delete(
+      `https://cec-hub-qme6.vercel.app/api/lecturer/${id}`,
+      {
+        headers: { Authorization: `Bearer ${token}` },
+        withCredentials: true,
+      }
+    );
 
-      console.log("Delete result:", result.data);
+    console.log("Delete result:", result.data);
+    setLecturers((prev) => prev.filter((lec) => lec._id !== id));
+  } catch (err) {
+    console.error("Failed to delete lecturer:", err.response?.data || err.message);
+    toast.error(err.response?.data?.message || "Failed to delete lecturer");
+    throw err;
+  }
+};
 
-      setLecturers((prev) => prev.filter((lec) => lec._id !== id));
-    } catch (err) {
-      console.error("Failed to delete lecturer:", err.response?.data || err.message);
-      toast.error(err.response?.data?.message || "Failed to delete lecturer");
-      throw err;
-    }
-  };
 
   // --- PROJECTS ---
   const fetchProjects = async () => {
