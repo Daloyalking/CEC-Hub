@@ -246,7 +246,7 @@ export default function AnnouncementPage() {
       editNewImages.forEach((img) => formData.append("images", img.file));
 
       await axios.put(
-        `https://cec-hub-qme6.vercel.app/api/notification/announcement/${editingId}`,
+        `http://localhost:4000/api/notification/announcement/${editingId}`,
         formData,
         {
           headers: {
