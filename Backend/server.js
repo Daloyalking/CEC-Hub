@@ -52,8 +52,5 @@ app.use("/api/lecturer", lecturerRouter);
 app.get("/", (req, res) => {
   res.send("Server is working");
 });
-app.all(/.*/, (req, res) => {
-  res.status(404).send("Not Found");
-});
 
 app.listen(port, () => console.log(`Server started on port ${port}`));
