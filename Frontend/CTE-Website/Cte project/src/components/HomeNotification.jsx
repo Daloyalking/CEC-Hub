@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 
 const HomeNotification = () => {
   
-  const { notification } = useContext(DeptContext);
+  const { notification,handleDownload } = useContext(DeptContext);
   const firstTen = notification.slice(0, 10); // Show latest 10 notifications
 
   return (
@@ -31,14 +31,14 @@ const HomeNotification = () => {
             {/* Show all documents if available */}
             {note.documents && note.documents.map((doc, i) => (
               <div key={i}>
-                <a
-                  href={doc.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 text-sm mt-2 inline-block"
-                >
-                  📄 {doc.description || doc.name}
-                </a>
+               <li >
+                        <button
+                          onClick={() => handleDownload(note._id, doc.public_id, doc.name)}
+                          className="text-blue-500 hover:underline"
+                        >
+                          {doc.name} ({doc.description || "No description"})
+                        </button>
+                      </li>
               </div>
             ))}
 

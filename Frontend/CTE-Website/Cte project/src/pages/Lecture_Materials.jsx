@@ -5,7 +5,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Lecture_Materials = () => {
-  const { notification, setNotification } = useContext(DeptContext);
+  const { notification, setNotification,handleDownload } = useContext(DeptContext);
   const [search, setSearch] = useState("");
   const [sort, setSort] = useState("newest");
   const [filterLevel, setFilterLevel] = useState("all");
@@ -48,17 +48,7 @@ const Lecture_Materials = () => {
         : new Date(a.createdAt) - new Date(b.createdAt)
     );
 
-  // Handle material download
-  const handleDownload = (materialId, docPublicId, filename) => {
-    const url = `https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${materialId}&doc=${encodeURIComponent(docPublicId)}`;
-    // Open in new tab to trigger download
-    const link = document.createElement("a");
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
+
 
   return (
     <div className="p-6">

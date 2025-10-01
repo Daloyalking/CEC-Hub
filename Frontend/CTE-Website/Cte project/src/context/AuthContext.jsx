@@ -39,6 +39,7 @@ export const AuthProvider = ({ children }) => {
     return () => {
       if (logoutTimer) clearTimeout(logoutTimer);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const login = (userData, jwtToken) => {

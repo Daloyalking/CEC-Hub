@@ -220,6 +220,17 @@ const DeptContextProvider = ({ children }) => {
     }
   };
 
+const handleDownload = (materialId, docPublicId, filename) => {
+    const url = `https://cec-hub-qme6.vercel.app/api/notification/download-material?id=${materialId}&doc=${encodeURIComponent(docPublicId)}`;
+    // Open in new tab to trigger download
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   useEffect(() => {
     fetchNotifications();
     fetchGallery();
@@ -254,6 +265,7 @@ const DeptContextProvider = ({ children }) => {
     // newly added helpers
     createGallery,
     updateGallery,
+    handleDownload
   };
 
   return <DeptContext.Provider value={value}>{children}</DeptContext.Provider>;
