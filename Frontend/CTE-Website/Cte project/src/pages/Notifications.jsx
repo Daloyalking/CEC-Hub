@@ -2,7 +2,7 @@ import React, { useContext, useState } from "react";
 import { DeptContext } from "../context/DeptContext";
 
 const Notifications = () => {
-  const { notification } = useContext(DeptContext);
+  const { notification,handleDownload } = useContext(DeptContext);
   const [sortOption, setSortOption] = useState("newest");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -109,15 +109,16 @@ const Notifications = () => {
               {note.documents && (
                 <div className="mt-3 space-y-1">
                   {note.documents.map((doc, index) => (
-                    <a
-                      key={index}
-                      href={doc.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 text-sm block"
+                     <li key={index}>
+                    <button
+                      onClick={() =>
+                        handleDownload(note._id, doc.public_id, doc.name)
+                      }
+                      className="text-blue-500 hover:underline"
                     >
-                      📄 {doc.description}
-                    </a>
+                      {doc.name} ({doc.description || "No description"})
+                    </button>
+                  </li>
                   ))}
                 </div>
               )}

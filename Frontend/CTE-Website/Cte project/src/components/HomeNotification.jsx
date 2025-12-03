@@ -1,10 +1,9 @@
-import React, { useContext } from 'react';
-import { DeptContext } from '../context/DeptContext';
-import { Link } from 'react-router-dom';
+import React, { useContext } from "react";
+import { DeptContext } from "../context/DeptContext";
+import { Link } from "react-router-dom";
 
 const HomeNotification = () => {
-  
-  const { notification,handleDownload } = useContext(DeptContext);
+  const { notification, handleDownload } = useContext(DeptContext);
   const firstTen = notification.slice(0, 10); // Show latest 10 notifications
 
   return (
@@ -23,24 +22,27 @@ const HomeNotification = () => {
             {note.images && note.images.length > 0 && (
               <img
                 src={note.images[0].url}
-                alt={note.images[0].description || 'Notification image'}
+                alt={note.images[0].description || "Notification image"}
                 className="mt-2 rounded-md w-full max-h-48 object-cover"
               />
             )}
 
             {/* Show all documents if available */}
-            {note.documents && note.documents.map((doc, i) => (
-              <div key={i}>
-               <li >
-                        <button
-                          onClick={() => handleDownload(note._id, doc.public_id, doc.name)}
-                          className="text-blue-500 hover:underline"
-                        >
-                          {doc.name} ({doc.description || "No description"})
-                        </button>
-                      </li>
-              </div>
-            ))}
+            {note.documents &&
+              note.documents.map((doc, i) => (
+                <div key={i}>
+                  <li>
+                    <button
+                      onClick={() =>
+                        handleDownload(note._id, doc.public_id, doc.name)
+                      }
+                      className="text-blue-500 hover:underline"
+                    >
+                      {doc.name} ({doc.description || "No description"})
+                    </button>
+                  </li>
+                </div>
+              ))}
 
             {/* Optional: Badge for type */}
             {note.type && (

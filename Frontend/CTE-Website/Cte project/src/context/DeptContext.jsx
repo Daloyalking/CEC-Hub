@@ -130,6 +130,7 @@ const DeptContextProvider = ({ children }) => {
    * - formData should be multipart/form-data when sending new files / photosToDelete
    */
   const updateGallery = async (id, formData) => {
+    console.log(token)
     if (!token) {
       toast.error("Not authorized");
       throw new Error("Not authorized");
