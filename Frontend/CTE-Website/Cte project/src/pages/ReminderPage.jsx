@@ -37,8 +37,8 @@ const ReminderPage = () => {
         return;
       }
 
-      // https://cec-hub-qme6.vercel.app/api
-      const response = await fetch("https://cec-hub-qme6.vercel.app/api/notification/reminder", {
+      // https://cec-hub-qme6.vercel.app/api /// https://cec-hub-ci7c.vercel.app/
+      const response = await fetch("https://cec-hub-ci7c.vercel.app/api/notification/reminder", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
